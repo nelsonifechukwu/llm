@@ -1,5 +1,6 @@
 import re
 import tiktoken
+
 # from importlib.metadata import version
 # print("tiktoken version:", version("tiktoken"))
 
@@ -44,9 +45,20 @@ class Tokenizer:
         if bpe:
             enc = tiktoken.get_encoding("gpt2")
             return enc.decode(ids)
-        return " ".join([self.int_to_str[id] for id in ids])
+        return " ".join(
+            [
+                (
+                    self.int_to_str[id]
+                    if id in self.int_to_str
+                    else self.int_to_str[self.str_to_int["<|unk|>"]]
+                )
+                for id in ids
+            ]
+        )
 
 
 tk = Tokenizer(vocab)
 stxt = "you are a good person"
 print(tk.encode(stxt, bpe=True))
+val = [5832, 389, 257, 922, 1048]
+print(tk.decode(val, bpe=True))
