@@ -1,4 +1,7 @@
 import re
+import tiktoken
+# from importlib.metadata import version
+# print("tiktoken version:", version("tiktoken"))
 
 with open("verdict.txt", "r") as f:
     verdict = f.read()
@@ -22,7 +25,10 @@ class Tokenizer:
         tokens = [token for token in tokens if token.strip()]
         return tokens
 
-    def encode(self, text):
+    def encode(self, text, bpe=False):
+        if bpe:
+            enc = tiktoken.get_encoding("gpt2")
+            return enc.encode(text)
         tokens = Tokenizer._tokenize(text)
         encoded_ids = [
             (
@@ -34,10 +40,13 @@ class Tokenizer:
         ]
         return encoded_ids
 
-    def decode(self, ids):
+    def decode(self, ids, bpe=False):
+        if bpe:
+            enc = tiktoken.get_encoding("gpt2")
+            return enc.decode(ids)
         return " ".join([self.int_to_str[id] for id in ids])
 
 
 tk = Tokenizer(vocab)
 stxt = "you are a good person"
-print(tk.encode(stxt))
+print(tk.encode(stxt, bpe=True))
