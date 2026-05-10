@@ -57,9 +57,9 @@ def create_dataloader(
 
 
 dataloader = create_dataloader(
-    verdict, batch_size=1, context_size=5, stride=5, shuffle=False
+    verdict, batch_size=4, context_size=5, stride=5, shuffle=False
 )
 data_iter = iter(dataloader)
-first_batch = next(data_iter)
-second_batch = next(data_iter)
-print(torch.stack(first_batch), torch.stack(second_batch))
+input, target = next(data_iter)
+print(input)
+print(target)
