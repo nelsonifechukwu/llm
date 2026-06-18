@@ -1,5 +1,6 @@
 import re
 import tiktoken
+from typing import Optional, Union
 
 # from importlib.metadata import version
 # print("tiktoken version:", version("tiktoken"))
@@ -16,9 +17,15 @@ vocab = {token: i for i, token in enumerate(vocab)}
 
 
 class Tokenizer:
-    def __init__(self, vocab):
+    def __init__(self, use_bpe = True, vocab: Optional[dict] = None):
+        self.use_bpe = use_bpe
+        if self.use_bpe:
+            return
+        if vocab is None:
+            raise ValueError("vocabulary input missing")
         self.str_to_int = vocab
         self.int_to_str = {i: token for token, i in vocab.items()}
+
 
     @staticmethod
     def _tokenize(text):
@@ -26,8 +33,8 @@ class Tokenizer:
         tokens = [token for token in tokens if token.strip()]
         return tokens
 
-    def encode(self, text, bpe=False):
-        if bpe:
+    def encode(self, text):
+        if self.use_bpe:
             enc = tiktoken.get_encoding("gpt2")
             return enc.encode(text)
         tokens = Tokenizer._tokenize(text)
@@ -41,8 +48,8 @@ class Tokenizer:
         ]
         return encoded_ids
 
-    def decode(self, ids, bpe=False):
-        if bpe:
+    def decode(self, ids):
+        if self.use_bpe:
             enc = tiktoken.get_encoding("gpt2")
             return enc.decode(ids)
         return " ".join(
@@ -57,8 +64,8 @@ class Tokenizer:
         )
 
 if __name__ == "__main__":
-    tk = Tokenizer(vocab)
+    tk = Tokenizer(False)
     stxt = "you are a good person"
-    print(tk.encode(stxt, bpe=False))
+    print(tk.encode(stxt))
     val = [5832, 389, 257, 922, 1048]
-    print(tk.decode(val, bpe=False))
+    print(tk.decode(val))
