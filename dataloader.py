@@ -36,7 +36,7 @@ class CustomDataset(Dataset):
 
 
 def create_dataloader(
-    text,
+    input,
     context_size=256,
     stride=1,
     batch_size=4,
