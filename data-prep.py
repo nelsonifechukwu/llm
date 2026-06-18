@@ -56,9 +56,9 @@ class Tokenizer:
             ]
         )
 
-
-tk = Tokenizer(vocab)
-stxt = "you are a good person"
-print(tk.encode(stxt, bpe=True))
-val = [5832, 389, 257, 922, 1048]
-print(tk.decode(val, bpe=True))
+if __name__ == "__main__":
+    tk = Tokenizer(vocab)
+    stxt = "you are a good person"
+    print(tk.encode(stxt, bpe=False))
+    val = [5832, 389, 257, 922, 1048]
+    print(tk.decode(val, bpe=False))

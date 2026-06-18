@@ -8,7 +8,7 @@ with open("verdict.txt", "r", encoding="utf-8") as f:
 # enc_text = tokenizer.encode(verdict)
 # enc_sample = enc_text[100:]
 
-# context_size = 4 # this is similar to Claude's context window--the number of tokens the model considers when making predictions, allowing it to understand and generate coherent text based on that context.
+# context_size = 4 #aka max_length, is similar to Claude's context window--the number of tokens the model considers when making predictions, allowing it to understand and generate coherent text based on that context.
 # x = enc_sample[:context_size]
 # y = enc_sample[1:context_size+1]
 
@@ -23,8 +23,8 @@ class CustomDataset(Dataset):
         self.input_ids = []
         self.target_ids = []
         for i in range(0, len(self.token_ids) - context_size, stride):
-            input_chunk = self.token_ids[i : i + context_size]  # [a,b,c]
-            target_chunk = self.token_ids[i + 1 : i + context_size + 1]  # [b,c,d]
+            input_chunk = self.token_ids[i : i + context_size]  # [a,b,c,d,e]
+            target_chunk = self.token_ids[i + 1 : i + context_size + 1]  # [b,c,d,e,f]
             self.input_ids.append(torch.tensor(input_chunk))
             self.target_ids.append(torch.tensor(target_chunk))
 
@@ -56,10 +56,11 @@ def create_dataloader(
     return dataloader
 
 
-dataloader = create_dataloader(
-    verdict, batch_size=4, context_size=5, stride=5, shuffle=False
-)
-data_iter = iter(dataloader)
-input, target = next(data_iter)
-print(input)
-print(target)
+if __name__ == "__main__":
+    dataloader = create_dataloader(
+        verdict, batch_size=3, context_size=5, stride=5, shuffle=False
+    )
+    data_iter = iter(dataloader)
+    input, target = next(data_iter)
+    print(input)
+    print(target)
