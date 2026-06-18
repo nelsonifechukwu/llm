@@ -1,6 +1,7 @@
-import tiktoken
+from dataprep import Tokenizer
 import torch
 from torch.utils.data import DataLoader, Dataset
+
 
 with open("verdict.txt", "r", encoding="utf-8") as f:
     verdict = f.read()
@@ -18,8 +19,8 @@ with open("verdict.txt", "r", encoding="utf-8") as f:
 
 
 class CustomDataset(Dataset):
-    def __init__(self, text, tokenizer, context_size, stride):
-        self.token_ids = tokenizer.encode(text)
+    def __init__(self, input, tokenizer, context_size, stride):
+        self.token_ids = tokenizer.encode(input)
         self.input_ids = []
         self.target_ids = []
         for i in range(0, len(self.token_ids) - context_size, stride):
@@ -43,8 +44,8 @@ def create_dataloader(
     shuffle=True,
     drop_last=True,
     num_workers=0,
-):
-    tokenizer = tiktoken.get_encoding("gpt2")
+):  
+    tokenizer = Tokenizer()
     dataset = CustomDataset(input, tokenizer, context_size, stride)
     dataloader = DataLoader(
         dataset,
