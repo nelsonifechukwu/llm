@@ -45,7 +45,7 @@ def create_dataloader(
     num_workers=0,
 ):
     tokenizer = tiktoken.get_encoding("gpt2")
-    dataset = CustomDataset(text, tokenizer, context_size, stride)
+    dataset = CustomDataset(input, tokenizer, context_size, stride)
     dataloader = DataLoader(
         dataset,
         batch_size=batch_size,
