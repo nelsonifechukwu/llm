@@ -44,7 +44,7 @@ for i, _ in enumerate(input):
     attn_weight = torch.softmax(attn_scores, dim=0)
     #context_vec per input
     #context_vec = (torch.diag(attn_weight) @ input).sum(dim=0)
-    scales = attn_weight[:, None] #resize the attn_weight to a col vec
+    scales = attn_weight[:, None] #reshape the attn_weight to a col vec
     context_vec = (input * scales).sum(dim=0)
     all_context_vec[i] = context_vec
 
