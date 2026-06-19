@@ -16,7 +16,6 @@ for i, token in enumerate(input):
     attn_score_1[i] = torch.dot(token, query)
 
 #then we normalize the scores to give us the attn weight
-    #normalize the attention score (let's use geometric norm - L2 norm)
     #see avg norm: attn_score_1/attn_score_1.sum()
     #see L2 norm: attn_score_1/torch.linalg.vector_norm()
     #see softmax norm: apply softmax (ensures all  weights are +ve)
