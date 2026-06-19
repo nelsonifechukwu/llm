@@ -9,7 +9,9 @@ with open("verdict.txt", "r", encoding="utf-8") as f:
 # enc_text = tokenizer.encode(verdict)
 # enc_sample = enc_text[100:]
 
-# context_size = 4 #aka max_length, is similar to Claude's context window--the number of tokens the model considers when making predictions, allowing it to understand and generate coherent text based on that context.
+# context_size = 4 #aka max_length, is similar to Claude's context window, 
+# i.e the number of tokens the model considers when making predictions, 
+# allowing it to understand and generate coherent text based on that context.
 # x = enc_sample[:context_size]
 # y = enc_sample[1:context_size+1]
 
