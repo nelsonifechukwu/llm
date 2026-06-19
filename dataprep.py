@@ -28,16 +28,16 @@ class Tokenizer:
 
 
     @staticmethod
-    def _tokenize(text):
-        tokens = re.split(r'([,.:;?_!"()\']|--|\s)', text)
+    def _tokenize(input):
+        tokens = re.split(r'([,.:;?_!"()\']|--|\s)', input)
         tokens = [token for token in tokens if token.strip()]
         return tokens
 
-    def encode(self, text):
+    def encode(self, input):
         if self.use_bpe:
             enc = tiktoken.get_encoding("gpt2")
-            return enc.encode(text)
-        tokens = Tokenizer._tokenize(text)
+            return enc.encode(input)
+        tokens = Tokenizer._tokenize(input)
         encoded_ids = [
             (
                 self.str_to_int[token]
