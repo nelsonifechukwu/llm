@@ -18,14 +18,13 @@ torch.manual_seed(123)
 vocab_size = 50257 #vocab size for bpe
 output_dim = 256
 embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
-
-#tokens -> embeddings (similar to one-hot encoding)
 token_embeddings = embedding_layer(input)
 
-
+#the above tokens -> embeddings (similar to one-hot encoding)
 #[one-hot vector][embedding matrix]    
 #                [embedding matrix]
 #                [embedding matrix]
+#see below:
 
 one_hot = torch.nn.functional.one_hot(input.squeeze(dim=0), vocab_size)
 linear = torch.nn.Linear(vocab_size, output_dim, bias=False)
@@ -41,7 +40,7 @@ pos_embeddings = pos_embedding_layer(torch.arange(context_length)) #use a placeh
 #N.b: embedding_layer(input) is like a lookup, not like [vector][matrix] mul in the Linear layer
 
 #add the pos_embeddings to the token embeddings
-input_embeddings = token_embeddings + pos_embeddings #python broadcasting
+input_embeddings = token_embeddings + pos_embeddings # broadcasting
 
 if __name__ == "__main__":
     print(input_embeddings)
