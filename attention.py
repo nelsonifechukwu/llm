@@ -41,7 +41,6 @@ def compute_context_vec(input_embeddings, matrix_style = False):
     all_context_vec = torch.zeros(input.shape)
     if matrix_style:
         all_attn_scores = input @ input.T
-        print(all_attn_scores.shape)
         all_attn_weights = torch.softmax(all_attn_scores, dim=1)
         all_context_vec = all_attn_weights @ input
         return all_context_vec
