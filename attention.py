@@ -36,17 +36,27 @@ for i, token in enumerate(input):
     context_vec_1 += attn_weight_1[i]*token
 
 #computing context_vec for all input tokens
-input = input_embeddings[0]
-all_context_vec = torch.zeros(input.shape)
-for i, _ in enumerate(input):
-    attn_scores = input @ input[i]
-    attn_weight = torch.softmax(attn_scores, dim=0)
-    #context_vec per input
-    #context_vec = (torch.diag(attn_weight) @ input).sum(dim=0)
-    scales = attn_weight[:, None] #reshape the attn_weight to a col vec
-    context_vec = (input * scales).sum(dim=0)
-    all_context_vec[i] = context_vec
+def compute_context_vec(input_embeddings, matrix_style = False):
+    input = input_embeddings[0]
+    all_context_vec = torch.zeros(input.shape)
+    if matrix_style:
+        all_attn_scores = input @ input.T
+        print(all_attn_scores.shape)
+        all_attn_weights = torch.softmax(all_attn_scores, dim=1)
+        all_context_vec = all_attn_weights @ input
+        return all_context_vec
+      
+    for i, _ in enumerate(input):
+        attn_scores_per_tok = input @ input[i]
+        attn_weights_per_tok = torch.softmax(attn_scores_per_tok, dim=0)
+        #context_vec per input
+        #context_vec = (torch.diag(attn_weight) @ input).sum(dim=0)
+        scales = attn_weights_per_tok[:, None] #reshape the attn_weight to a col vec
+        context_vec = (input * scales).sum(dim=0)
+        all_context_vec[i] = context_vec
+    return all_context_vec
 
-print(all_context_vec[2])
+
+print(compute_context_vec(input_embeddings, True)[2])
 print(input[2])
     
