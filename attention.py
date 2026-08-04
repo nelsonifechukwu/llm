@@ -5,15 +5,14 @@ import torch
 from embedding import input_embeddings
 
 input = input_embeddings[0] 
-
 #to calculate intermediate attention scores, we perform a dot product between the query token and other tokens in the sequence (as a measure of similarity)
 
-query = input[0]
+query_1 = input[0]
 attn_score_1 = torch.empty(input.shape[0], dtype=torch.float32) 
 #use torch.empty when you're going to replace the var anyway, not accumlate
 #(never assume torch.empty contains zero. see also tensor.fill_(0))
 for i, token in enumerate(input):
-    attn_score_1[i] = torch.dot(token, query)
+    attn_score_1[i] = torch.dot(token, query_1)
 
 #then we normalize the scores to give us the attn weight
     #see avg norm: attn_score_1/attn_score_1.sum()
@@ -32,7 +31,7 @@ attn_weight_1 = torch.softmax(attn_score_1, dim=0)
 
 #then we form the context_vec for the query token
 #which is sum(attention score * each token)
-context_vec_1 = torch.zeros(query.shape)
+context_vec_1 = torch.zeros(query_1.shape)
 for i, token in enumerate(input):
     context_vec_1 += attn_weight_1[i]*token
 
