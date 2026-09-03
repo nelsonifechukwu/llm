@@ -68,25 +68,20 @@ class selfAttention(nn.Module):
         values = input_embeddings @ self.W_v
         dim_k = keys.shape[-1]
 
-        #compute context vector for all input queries
+        #compute attn score for all input queries
         queries = input_embeddings @ self.W_q
         all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys)
 
+        #normalize attn score to get attn weights for all input queries
         all_scaled_attn_weights = torch.softmax(
         all_attn_scores.flatten(-2) / dim_k**0.5, dim=-1
             ).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ...
 
+        #compute context vectors for all queries
         all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
         
         return all_context_vector
 
-
-        
-        
-        
-        
-        
-        
 if __name__ == "__main__":
 
     all_context_vec = compute_context_vec(input_embeddings, True)
