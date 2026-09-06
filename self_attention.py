@@ -36,3 +36,6 @@ all_scaled_attn_weights = torch.softmax(
     all_attn_scores.flatten(-2) / dim_k**0.5, dim=-1
 ).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ...
 
+all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
+
+print(all_context_vector.shape)
