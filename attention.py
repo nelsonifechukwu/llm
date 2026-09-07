@@ -57,19 +57,18 @@ def compute_context_vec(input_embeddings, matrix_style = False):
     return all_context_vec
 
 class selfAttention(nn.Module):
-    def __init__(self, d_in, d_out) -> None:
+    def __init__(self, d_in, d_out, qkv_bias=False) -> None:
         super().__init__()
-        self.W_q = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False) #256 x 128
-        self.W_k = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
-        self.W_v = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
-
+        self.W_q = nn.Linear(d_in, d_out, bias=qkv_bias) #256 x 128
+        self.W_k = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
     def forward(self, input):
-        keys = input @ self.W_k # 8 x 4 x 128
-        values = input @ self.W_v
+        keys = self.W_k(input) # 8 x 4 x 128
+        values = self.W_v(input)
         dim_k = keys.shape[-1]
 
         #compute attn score for all input queries
-        queries = input @ self.W_q
+        queries = self.W_q(input)
         all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys)
 
         #normalize attn score to get attn weights for all input queries
