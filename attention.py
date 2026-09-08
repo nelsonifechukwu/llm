@@ -64,7 +64,7 @@ class selfAttention(nn.Module):
         self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
     def forward(self, input):
         keys = self.W_k(input) # 8 x 4 x 128
-        values = self.W_v(input)
+        values = self.W_v(input) # Linear layers are called, not matmul'd
         dim_k = keys.shape[-1]
 
         #compute attn score for all input queries
