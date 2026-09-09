@@ -63,13 +63,13 @@ class selfAttention(nn.Module):
         self.W_k = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
         self.W_v = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
 
-    def forward(self):
-        keys = input_embeddings @ self.W_k # 8 x 4 x 128
-        values = input_embeddings @ self.W_v
+    def forward(self, input):
+        keys = input @ self.W_k # 8 x 4 x 128
+        values = input @ self.W_v
         dim_k = keys.shape[-1]
 
         #compute attn score for all input queries
-        queries = input_embeddings @ self.W_q
+        queries = input @ self.W_q
         all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys)
 
         #normalize attn score to get attn weights for all input queries
