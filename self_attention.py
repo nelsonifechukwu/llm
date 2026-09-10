@@ -23,7 +23,9 @@ dim_k = keys.shape[-1]
 original_shape = attn_scores_q1.shape
 attn_scores_q1 = attn_scores_q1.reshape(1, -1)
 scaled_attn_weights_q1 = torch.softmax(attn_scores_q1/dim_k**0.5, dim = 1)
-scaled_attn_weights_q1 = scaled_attn_weights_q1.reshape(original_shape)
+scaled_attn_weights_q1 = scaled_attn_weights_q1.reshape(original_shape) # 8 x 4
 
+#compute context vector
+ctx_vec_q1 = torch.einsum('ij,ijk->k', scaled_attn_weights_q1, values)
 
-print(scaled_attn_weights_q1.shape)
+print(ctx_vec_q1.shape)
