@@ -55,7 +55,9 @@ def compute_context_vec(input_embeddings, matrix_style = False):
         all_context_vec[i] = context_vec
     return all_context_vec
 
+if __name__ == "__main__":
 
-print(compute_context_vec(input_embeddings, True)[2])
-print(input[2])
+    all_context_vec = compute_context_vec(input_embeddings, True)
+    print(all_context_vec[2])
+    print(input[2])
     
