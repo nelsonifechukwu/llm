@@ -2,6 +2,7 @@
 
 #simple attention
 import torch
+import torch.nn as nn
 from embedding import input_embeddings
 
 input = input_embeddings[0] 
@@ -55,6 +56,37 @@ def compute_context_vec(input_embeddings, matrix_style = False):
         all_context_vec[i] = context_vec
     return all_context_vec
 
+class selfAttention(nn.Module):
+    def __init__(self, d_in, d_out) -> None:
+        super().__init__()
+        self.W_q = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False) #256 x 128
+        self.W_k = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
+        self.W_v = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
+
+    def forward(self):
+        keys = input_embeddings @ self.W_k # 8 x 4 x 128
+        values = input_embeddings @ self.W_v
+        dim_k = keys.shape[-1]
+
+        #compute context vector for all input queries
+        queries = input_embeddings @ self.W_q
+        all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys)
+
+        all_scaled_attn_weights = torch.softmax(
+        all_attn_scores.flatten(-2) / dim_k**0.5, dim=-1
+            ).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ...
+
+        all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
+        
+        return all_context_vector
+
+
+        
+        
+        
+        
+        
+        
 if __name__ == "__main__":
 
     all_context_vec = compute_context_vec(input_embeddings, True)
