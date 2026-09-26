@@ -38,4 +38,3 @@ all_scaled_attn_weights = torch.softmax(
 
 all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
 
-print(all_context_vector.shape)
