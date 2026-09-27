@@ -70,7 +70,7 @@ class selfAttention(nn.Module):
         dim_k = keys.shape[-1]
 
         #compute context vector for all input queries
-        queries = input_embeddings @ self.W_q 
+        queries = self.W_q(input)
         all_attn_scores = queries @ keys.transpose(-2, -1)# 8 x 4 x 4
 
         #normalize weights
@@ -100,7 +100,7 @@ class causalAttention(nn.Module):
         dim_k = keys.shape[-1]
 
         #compute context vector for all input queries
-        queries = input_embeddings @ self.W_q 
+        queries = self.W_q(input)
         all_attn_scores = queries @ keys.transpose(-2, -1)# 8 x 4 x 4
 
         ##apply masked attention
