@@ -40,16 +40,16 @@ all_scaled_attn_weights = torch.softmax(
 #flatten weights 
 flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(32,32)
 
-print(flat_all_scaled_attn_weights.sum(dim=-1))
+
 
 #create mask
-mask = torch.tril(torch.ones(flat_all_scaled_attn_weights.shape))
+mask = torch.triu(torch.ones(flat_all_scaled_attn_weights.shape), diagonal=1)
 
 #apply mask
-masked_all_scaled_attn_weights = flat_all_scaled_attn_weights * mask
+masked_all_scaled_attn_weights = flat_all_scaled_attn_weights.masked_fill(mask.bool(), -torch.inf)
 
 #normalize masked weights
-norm_masked_all_scaled_attn_weights = masked_all_scaled_attn_weights / masked_all_scaled_attn_weights.sum(dim=-1, keepdim=True)
+norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weights/dim_k**0.5, dim=-1)
 
 all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
 
