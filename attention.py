@@ -57,11 +57,12 @@ def compute_context_vec(input_embeddings, matrix_style = False):
     return all_context_vec
 
 class selfAttention(nn.Module):
-    def __init__(self, d_in, d_out, qkv_bias=False) -> None:
+    def __init__(self, d_in, d_out, dropout, qkv_bias=False) -> None:
         super().__init__()
         self.W_q = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_k = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.dropout = nn.Dropout(dropout)
     def forward(self, input):
         keys = self.W_k(input) # 8 x 4 x 128
         values = self.W_v(input) # Linear layers are called, not matmul'd
@@ -94,8 +95,7 @@ class selfAttention(nn.Module):
         norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weights/dim_k**0.5, dim=-1)
         
         #apply dropout
-        dropout = torch.nn.Dropout(0.5)
-        dp_norm_masked_all_scaled_attn_weights = dropout(norm_masked_all_scaled_attn_weights).reshape(all_attn_scores.shape)
+        dp_norm_masked_all_scaled_attn_weights = self.dropout(norm_masked_all_scaled_attn_weights).reshape(all_attn_scores.shape)
 
         #compute context vectors for all queries
         all_context_vector = torch.einsum('ijkl,kld->ijd',dp_norm_masked_all_scaled_attn_weights, values)
