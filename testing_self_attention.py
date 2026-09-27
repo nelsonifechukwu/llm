@@ -30,7 +30,8 @@ ctx_vec_q1 = torch.einsum('ij,ijk->k', scaled_attn_weights_q1, values)
 
 #compute context vector for all input queries
 queries = input_embeddings @ W_q
-all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys)
+all_attn_scores = queries @ keys.transpose(1, 2)
+
 
 all_scaled_attn_weights = torch.softmax(
     all_attn_scores.flatten(-2) / dim_k**0.5, dim=-1
