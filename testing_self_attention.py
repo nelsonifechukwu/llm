@@ -52,5 +52,3 @@ dp_norm_masked_all_scaled_attn_weights = dropout(norm_masked_all_scaled_attn_wei
 
 #compute context vectors for all queries
 all_context_vector = dp_norm_masked_all_scaled_attn_weights @ values
-
-print(all_context_vector.shape)
