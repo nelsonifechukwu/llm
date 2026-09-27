@@ -37,10 +37,12 @@ all_scaled_attn_weights = torch.softmax(
 ).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ... 8 x 4 x 8 x 4
 
 ##apply masked attention
-#flatten weights 
-flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(32,32)
-
-
+#flatten weights (cause of 2 query & 2 key axes)
+        
+k = all_scaled_attn_weights.dim() // 2 
+q_size = all_scaled_attn_weights.shape[:k].numel()
+kv_size = all_scaled_attn_weights.shape[k:].numel()
+flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(q_size, kv_size)
 
 #create mask
 mask = torch.triu(torch.ones(flat_all_scaled_attn_weights.shape), diagonal=1)
@@ -53,4 +55,4 @@ norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weigh
 
 all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
 
-print(norm_masked_all_scaled_attn_weights.sum(dim=-1))
+print(flat_all_scaled_attn_weights.shape)
