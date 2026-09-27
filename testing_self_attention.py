@@ -53,6 +53,11 @@ masked_all_scaled_attn_weights = flat_all_scaled_attn_weights.masked_fill(mask.b
 #normalize masked weights
 norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weights/dim_k**0.5, dim=-1)
 
-all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
+ #apply dropout
+dropout = torch.nn.Dropout(0.5)
+dp_norm_masked_all_scaled_attn_weights = dropout(norm_masked_all_scaled_attn_weights).reshape(all_attn_scores.shape)
 
-print(flat_all_scaled_attn_weights.shape)
+#compute context vectors for all queries
+all_context_vector = torch.einsum('ijkl,kld->ijd',dp_norm_masked_all_scaled_attn_weights, values)
+
+print(all_context_vector.shape)
