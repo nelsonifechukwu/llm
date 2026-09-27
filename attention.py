@@ -69,7 +69,7 @@ class selfAttention(nn.Module):
 
         #compute attn score for all input queries
         queries = self.W_q(input)
-        all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys)
+        all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys) # 8 x 4 x 8 x 4
 
         #normalize attn score to get attn weights for all input queries
         all_scaled_attn_weights = torch.softmax(
