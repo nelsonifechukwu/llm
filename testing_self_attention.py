@@ -30,35 +30,31 @@ ctx_vec_q1 = torch.einsum('ij,ijk->k', scaled_attn_weights_q1, values)
 
 #compute context vector for all input queries
 queries = input_embeddings @ W_q
-all_attn_scores = queries @ keys.transpose(-2, -1)
-
+all_attn_scores = queries @ keys.transpose(-2, -1)# 8 x 4 x 4
 
 all_scaled_attn_weights = torch.softmax(
-    all_attn_scores.flatten(-2) / dim_k**0.5, dim=-1
-).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ... 8 x 4 x 8 x 4
+    all_attn_scores / dim_k**0.5, dim=-1
+)
 
 ##apply masked attention
-#flatten weights (cause of 2 query & 2 key axes)
-        
-k = all_scaled_attn_weights.dim() // 2 
-q_size = all_scaled_attn_weights.shape[:k].numel()
-kv_size = all_scaled_attn_weights.shape[k:].numel()
-flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(q_size, kv_size)
 
 #create mask
-mask = torch.triu(torch.ones(flat_all_scaled_attn_weights.shape), diagonal=1)
+mask = torch.triu(torch.ones(all_attn_scores.shape), diagonal=1)
+
 
 #apply mask
-masked_all_scaled_attn_weights = flat_all_scaled_attn_weights.masked_fill(mask.bool(), -torch.inf)
+masked_all_scaled_attn_weights = all_scaled_attn_weights.masked_fill(mask.bool(), -torch.inf)
 
 #normalize masked weights
 norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weights/dim_k**0.5, dim=-1)
+
 
  #apply dropout
 dropout = torch.nn.Dropout(0.5)
 dp_norm_masked_all_scaled_attn_weights = dropout(norm_masked_all_scaled_attn_weights).reshape(all_attn_scores.shape)
 
+
 #compute context vectors for all queries
-all_context_vector = torch.einsum('ijkl,kld->ijd',dp_norm_masked_all_scaled_attn_weights, values)
+all_context_vector = dp_norm_masked_all_scaled_attn_weights @ values
 
 print(all_context_vector.shape)
