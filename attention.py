@@ -92,9 +92,13 @@ class selfAttention(nn.Module):
 
         #normalize masked weights
         norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weights/dim_k**0.5, dim=-1)
+        
+        #apply dropout
+        dropout = torch.nn.Dropout(0.5)
+        dp_norm_masked_all_scaled_attn_weights = dropout(norm_masked_all_scaled_attn_weights).reshape(all_attn_scores.shape)
 
         #compute context vectors for all queries
-        all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
+        all_context_vector = torch.einsum('ijkl,kld->ijd',dp_norm_masked_all_scaled_attn_weights, values)
         
         return all_context_vector
 
