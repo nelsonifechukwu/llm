@@ -63,6 +63,35 @@ class selfAttention(nn.Module):
         self.W_k = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.dropout = nn.Dropout(dropout)
+    def forward(self, input):
+        b, n_tokens, d_in = input.shape
+        keys = self.W_k(input) # => input @ self.W_k; 8 x 4 x 128
+        values = self.W_v(input) # Linear layers are called, not matmul'd
+        dim_k = keys.shape[-1]
+
+        #compute context vector for all input queries
+        queries = input_embeddings @ self.W_q 
+        all_attn_scores = queries @ keys.transpose(-2, -1)# 8 x 4 x 4
+
+        #normalize weights
+        all_scaled_attn_weights = torch.softmax(all_attn_scores/dim_k**0.5, dim=-1)
+
+        #apply dropout
+        dp_all_scaled_attn_weights = self.dropout(all_scaled_attn_weights).reshape(all_attn_scores.shape)
+
+        #compute context vectors for all queries
+        all_context_vector = dp_all_scaled_attn_weights @ values
+        
+        return all_context_vector
+    
+class causalAttention(nn.Module):
+    
+    def __init__(self, d_in, d_out, context_length, dropout, qkv_bias=False) -> None:
+        super().__init__()
+        self.W_q = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_k = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.dropout = nn.Dropout(dropout)
         self.register_buffer('mask', torch.triu(torch.ones(context_length, context_length), diagonal=1))
     def forward(self, input):
         b, n_tokens, d_in = input.shape
@@ -87,6 +116,7 @@ class selfAttention(nn.Module):
         all_context_vector = dp_norm_masked_all_scaled_attn_weights @ values
         
         return all_context_vector
+    
 
 if __name__ == "__main__":
 
