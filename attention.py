@@ -77,9 +77,9 @@ class selfAttention(nn.Module):
             ).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ...
 
         ##apply masked attention
-        #flatten weights 
+        #flatten weights (cause of 2 query & 2 key axes)
                 
-        k = all_scaled_attn_weights.dim() // 2
+        k = all_scaled_attn_weights.dim() // 2 
         q_size = all_scaled_attn_weights.shape[:k].numel()
         kv_size = all_scaled_attn_weights.shape[k:].numel()
         flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(q_size, kv_size)
