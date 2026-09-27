@@ -32,10 +32,6 @@ ctx_vec_q1 = torch.einsum('ij,ijk->k', scaled_attn_weights_q1, values)
 queries = input_embeddings @ W_q
 all_attn_scores = queries @ keys.transpose(-2, -1)# 8 x 4 x 4
 
-all_scaled_attn_weights = torch.softmax(
-    all_attn_scores / dim_k**0.5, dim=-1
-)
-
 ##apply masked attention
 
 #create mask
@@ -43,10 +39,10 @@ mask = torch.triu(torch.ones(all_attn_scores.shape), diagonal=1)
 
 
 #apply mask
-masked_all_scaled_attn_weights = all_scaled_attn_weights.masked_fill(mask.bool(), -torch.inf)
+masked_all_scaled_attn_scores = all_attn_scores.masked_fill(mask.bool(), -torch.inf)
 
 #normalize masked weights
-norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weights/dim_k**0.5, dim=-1)
+norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_scores/dim_k**0.5, dim=-1)
 
 
  #apply dropout
