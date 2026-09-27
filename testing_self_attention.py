@@ -1,5 +1,6 @@
 import torch
 from embedding import input_embeddings
+from attention import causalAttention
 
 x_1 = input_embeddings[0][0] #1 x 256 from 8 x 4 x 256
 d_in = int(input_embeddings.shape[2]) #256
@@ -52,3 +53,10 @@ dp_norm_masked_all_scaled_attn_weights = dropout(norm_masked_all_scaled_attn_wei
 
 #compute context vectors for all queries
 all_context_vector = dp_norm_masked_all_scaled_attn_weights @ values
+
+
+if __name__ == "__main__":
+    input = torch.ones(6, 4, 3)
+    attn_obj = causalAttention(3, 4, 4, 0.5)
+    c_vec = attn_obj(input)
+    print(c_vec.shape)
