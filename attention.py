@@ -76,6 +76,19 @@ class selfAttention(nn.Module):
         all_attn_scores.flatten(-2) / dim_k**0.5, dim=-1
             ).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ...
 
+        ##apply masked attention
+        #flatten weights 
+        flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(32,32)
+
+        #create mask
+        mask = torch.triu(torch.ones(flat_all_scaled_attn_weights.shape), diagonal=1)
+
+        #apply mask
+        masked_all_scaled_attn_weights = flat_all_scaled_attn_weights.masked_fill(mask.bool(), -torch.inf)
+
+        #normalize masked weights
+        norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_weights/dim_k**0.5, dim=-1)
+
         #compute context vectors for all queries
         all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
         
