@@ -34,8 +34,23 @@ all_attn_scores = torch.einsum('ijk,abk->ijab', queries, keys)
 
 all_scaled_attn_weights = torch.softmax(
     all_attn_scores.flatten(-2) / dim_k**0.5, dim=-1
-).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ...
+).unflatten(-1, all_attn_scores.shape[-2:]) #unflatten(-1...) implies split the last dimension into ... 8 x 4 x 8 x 4
+
+##apply masked attention
+#flatten weights 
+flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(32,32)
+
+print(flat_all_scaled_attn_weights.sum(dim=-1))
+
+#create mask
+mask = torch.tril(torch.ones(flat_all_scaled_attn_weights.shape))
+
+#apply mask
+masked_all_scaled_attn_weights = flat_all_scaled_attn_weights * mask
+
+#normalize masked weights
+norm_masked_all_scaled_attn_weights = masked_all_scaled_attn_weights / masked_all_scaled_attn_weights.sum(dim=-1, keepdim=True)
 
 all_context_vector = torch.einsum('ijkl,kld->ijd',all_scaled_attn_weights, values)
 
-print(all_attn_scores.shape)
+print(norm_masked_all_scaled_attn_weights.sum(dim=-1))
