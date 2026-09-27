@@ -59,7 +59,7 @@ def compute_context_vec(input_embeddings, matrix_style = False):
 class selfAttention(nn.Module):
     def __init__(self, d_in, d_out, qkv_bias=False) -> None:
         super().__init__()
-        self.W_q = nn.Linear(d_in, d_out, bias=qkv_bias) #256 x 128
+        self.W_q = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_k = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
     def forward(self, input):
