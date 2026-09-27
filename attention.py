@@ -78,7 +78,11 @@ class selfAttention(nn.Module):
 
         ##apply masked attention
         #flatten weights 
-        flat_all_scaled_attn_weights = all_scaled_attn_weights.flatten(0,1).flatten(1,2)
+                
+        k = all_scaled_attn_weights.dim() // 2
+        q_size = all_scaled_attn_weights.shape[:k].numel()
+        kv_size = all_scaled_attn_weights.shape[k:].numel()
+        flat_all_scaled_attn_weights = all_scaled_attn_weights.reshape(q_size, kv_size)
 
         #create mask
         mask = torch.triu(torch.ones(flat_all_scaled_attn_weights.shape), diagonal=1)
