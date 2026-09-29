@@ -174,7 +174,7 @@ class multiHeadAttention(nn.Module):
         norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_scores/dim_k**0.5, dim=-1)
 
         #apply dropout
-        dp_norm_masked_all_scaled_attn_weights = self.dropout(norm_masked_all_scaled_attn_weights).reshape(all_attn_scores.shape)
+        dp_norm_masked_all_scaled_attn_weights = self.dropout(norm_masked_all_scaled_attn_weights)
 
         #compute context vectors for all queries
         all_context_vector = dp_norm_masked_all_scaled_attn_weights @ values # (B, H, T, H_d)
