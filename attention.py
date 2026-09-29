@@ -104,7 +104,7 @@ class causalAttention(nn.Module):
         all_attn_scores = queries @ keys.transpose(-2, -1)# 8 x 4 x 4
 
         ##apply masked attention
-        masked_all_scaled_attn_scores = all_attn_scores.masked_fill_(self.mask.bool(), -torch.inf)
+        masked_all_scaled_attn_scores = all_attn_scores.masked_fill_(self.mask.bool()[:n_tokens, :n_tokens], -torch.inf)
 
         #normalize masked weights
         norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_scores/dim_k**0.5, dim=-1)
