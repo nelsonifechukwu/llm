@@ -57,7 +57,7 @@ all_context_vector = dp_norm_masked_all_scaled_attn_weights @ values
 
 if __name__ == "__main__":
     input = torch.ones(6, 4, 3)
-    m_attn_obj = multiHeadAttention(3, 4, 4, 3, 0.5)
+    m_attn_obj = multiHeadAttention(3, 4, 4, 2, 0.5)
     c_attn_obj = causalAttention(3, 4, 4, 0.5)
     m_vec = m_attn_obj(input)
     c_vec = c_attn_obj(input)
