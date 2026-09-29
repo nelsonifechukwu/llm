@@ -166,8 +166,9 @@ class multiHeadAttention(nn.Module):
         #calculate attention matrix score, (B, H, T, H_d) @ (B, H, H_d, T) = (B, H, T, T)
         all_attn_scores = queries @ keys.transpose(-2, -1) 
 
-        ##apply masked attention
-        masked_all_scaled_attn_scores = all_attn_scores.masked_fill_(self.mask.bool(), -torch.inf)
+        ##apply masked attention. 
+        #[:n_tokens (seq_len of current input), :n_tokens] cause n_tokens may != context_length, the max seq_len for this class.
+        masked_all_scaled_attn_scores = all_attn_scores.masked_fill_(self.mask.bool()[:n_tokens, :n_tokens], -torch.inf)
 
         #normalize masked weights
         norm_masked_all_scaled_attn_weights = torch.softmax(masked_all_scaled_attn_scores/dim_k**0.5, dim=-1)
