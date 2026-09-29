@@ -62,3 +62,9 @@ if __name__ == "__main__":
     m_vec = m_attn_obj(input)
     c_vec = c_attn_obj(input)
     print(c_vec.shape, m_vec.shape)
+    
+    #define a GPT-2 model (12 attnheads, d_in = d_out = 768, context_length=1024)
+    input = torch.ones(8, 10, 768)
+    gpt_attn_obj = multiHeadAttention(768, 768, 1024, 12, 0.5)
+    c_vec = gpt_attn_obj(input)
+    print(c_vec.shape)
