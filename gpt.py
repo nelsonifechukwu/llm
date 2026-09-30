@@ -12,9 +12,17 @@ import torch
 import torch.nn as nn
 
 class initialGPTModel(nn.Module):
+    #LGFS - Layer norm, GELU activation, FFN, Shortcut connection
     def __init__(self, cfg):
         super().__init__()
-        
+        self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
+        self.pos_emb = nn.Embedding(cfg["context_length"], cfg["emb_dim"])
+        self.dropout = nn.Dropout(cfg["drop_rate"])
+        self.final_norm = initialLayerNorm(cfg["emb_dim"])
+        self.out_head = nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False)
+    
+    def forward(self, x):
+        pass
 
 class initialTransformerBlock(nn.Module):
     def __init__(self, cfg):
@@ -24,7 +32,7 @@ class initialTransformerBlock(nn.Module):
         return x
 
 class initialLayerNorm(nn.Module):
-    def __init__(self, normalized_shape, eps=1e-5):
+    def __init__(self, dim, eps=1e-5):
         super().__init__()
     def forward(self, x):
         return x
