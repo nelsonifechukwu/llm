@@ -34,6 +34,7 @@ def print_gradients(model, x):
     loss.backward()
     for name, param in model.named_parameters():
         if 'weight' in name:
+            #skip the bias and GELU layer is not a parameter
             print (f"{name}'s avg grad is {param.grad.abs().mean().item()}")
 
 if __name__ == "__main__":  
