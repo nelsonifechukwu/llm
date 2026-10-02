@@ -1,5 +1,6 @@
 from dataloader import create_dataloader
-from gpt import GPTModel, GPT_CONFIG_124M
+from gpt import GPTModel
+from config import GPT_CONFIG_124M, GPT_XLARGE
 
 with open("verdict.txt", "r") as f:
         verdict = f.read()
@@ -8,10 +9,20 @@ with open("verdict.txt", "r") as f:
         )
 data_iter = iter(dataloader)
 input, target = next(data_iter)
-model = GPTModel(GPT_CONFIG_124M)
+model = GPTModel(GPT_XLARGE)
 logits = model(input)
 print(logits, logits.shape)
 
 
 total_params = sum(p.numel() for p in model.parameters())
 print(f"Total Params = {total_params}")
+
+#the above no_of_weights is not quite the 124m. This is cause of weight tying. GPT2 reused the token_emb weights in the output head
+
+total_params_gpt2 = (
+total_params - sum(p.numel()
+for p in model.out_head.parameters())
+)
+print(f"Number of trainable parameters "
+f"considering weight tying: {total_params_gpt2:,}"
+)
