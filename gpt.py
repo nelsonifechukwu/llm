@@ -11,6 +11,7 @@ GPT_CONFIG_124M = {
 import torch
 import torch.nn as nn
 
+
 class initialGPTModel(nn.Module):
     #LGFS - Layer norm, GELU activation, FFN, Shortcut connection
     def __init__(self, cfg):
@@ -44,3 +45,17 @@ class initialLayerNorm(nn.Module):
         super().__init__()
     def forward(self, x):
         return x
+    
+    
+if __name__ == "__main__":  
+    from dataloader import create_dataloader
+    with open("verdict.txt", "r") as f:
+        verdict = f.read()
+    dataloader = create_dataloader(
+            verdict, batch_size=3, context_size=5, stride=5, shuffle=False
+        )
+    data_iter = iter(dataloader)
+    input, target = next(data_iter)
+    GPT = initialGPTModel(GPT_CONFIG_124M)
+    logits = GPT(input)
+    print(logits, logits.shape)
