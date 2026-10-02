@@ -54,6 +54,13 @@ class initialLayerNorm(nn.Module):
         x = (x - mean)/torch.sqrt(var + self.eps) #self.eps to prevent divide by 0
         return x * self.scale + self.shift
     
+
+class GELU(nn.Module):
+    def __init__(self):
+        super().__init__()
+    def forward(self, x):
+        return 0.5 * x * (1 + torch.tanh(torch.sqrt(torch.tensor(2.0/torch.pi)) * (x + 0.044715 * torch.pow(x,3))
+        ))    
     
 if __name__ == "__main__":  
     from dataloader import create_dataloader
