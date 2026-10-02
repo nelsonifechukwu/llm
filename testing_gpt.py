@@ -8,6 +8,10 @@ with open("verdict.txt", "r") as f:
         )
 data_iter = iter(dataloader)
 input, target = next(data_iter)
-GPT = GPTModel(GPT_CONFIG_124M)
-logits = GPT(input)
+model = GPTModel(GPT_CONFIG_124M)
+logits = model(input)
 print(logits, logits.shape)
+
+
+total_params = sum(p.numel() for p in model.parameters())
+print(f"Total Params = {total_params}")
