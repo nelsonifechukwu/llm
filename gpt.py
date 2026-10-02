@@ -13,6 +13,8 @@ import torch.nn as nn
 from attention import multiHeadAttention
 
 #LG(A/F)DS - Layer norm, GELU activation, FFN, Shortcut connection
+#pre-layer norm offers better training dynamics than post-layer norm
+
 class GPTModel(nn.Module):
 
     def __init__(self, cfg):
