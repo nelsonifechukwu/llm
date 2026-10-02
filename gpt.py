@@ -73,7 +73,6 @@ class LayerNorm(nn.Module):
         x = (x - mean)/torch.sqrt(var + self.eps) #self.eps to prevent divide by 0
         return x * self.scale + self.shift
     
-
 class GELU(nn.Module):
     def __init__(self):
         super().__init__()
