@@ -11,9 +11,9 @@ GPT_CONFIG_124M = {
 import torch
 import torch.nn as nn
 
-
+#LGFS - Layer norm, GELU activation, FFN, Shortcut connection
 class initialGPTModel(nn.Module):
-    #LGFS - Layer norm, GELU activation, FFN, Shortcut connection
+
     def __init__(self, cfg):
         super().__init__()
         self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
@@ -62,6 +62,18 @@ class GELU(nn.Module):
         return 0.5 * x * (1 + torch.tanh(torch.sqrt(torch.tensor(2.0/torch.pi)) * (x + 0.044715 * torch.pow(x,3))
         ))    
     
+class FeedForward(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(cfg["emb_dim"], 4*cfg["emb_dim"]),
+            GELU(),
+            nn.Linear(4*cfg["emb_dim"], cfg["emb_dim"])    
+        )
+        
+    def forward(self, x):
+        self.layers(x)
+
 if __name__ == "__main__":  
     from dataloader import create_dataloader
     with open("verdict.txt", "r") as f:
