@@ -10,17 +10,18 @@ GPT_CONFIG_124M = {
 
 import torch
 import torch.nn as nn
+from attention import multiHeadAttention
 
-#LGFS - Layer norm, GELU activation, FFN, Shortcut connection
-class initialGPTModel(nn.Module):
+#LG(A/F)DS - Layer norm, GELU activation, FFN, Shortcut connection
+class GPTModel(nn.Module):
 
     def __init__(self, cfg):
         super().__init__()
         self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
         self.pos_emb = nn.Embedding(cfg["context_length"], cfg["emb_dim"])
         self.dropout = nn.Dropout(cfg["drop_rate"])
-        self.transformer_blocks = nn.Sequential(*[initialTransformerBlock(cfg) for _ in range(cfg["n_layers"])])
-        self.final_norm = initialLayerNorm(cfg["emb_dim"])
+        self.transformer_blocks = nn.Sequential(*[TransformerBlock(cfg) for _ in range(cfg["n_layers"])])
+        self.final_norm = LayerNorm(cfg["emb_dim"])
         self.out_head = nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False)
     
     def forward(self, input):
@@ -33,14 +34,30 @@ class initialGPTModel(nn.Module):
         x = self.final_norm(x)
         x = self.out_head(x)
         return x
-class initialTransformerBlock(nn.Module):
+class TransformerBlock(nn.Module):
     def __init__(self, cfg):
         super().__init__()
+        self.norm1 = LayerNorm(cfg["emb_dim"])
+        self.norm2 = LayerNorm(cfg["emb_dim"])
+        self.ff = FeedForward(cfg)
+        self.drop_skip_conn = nn.Dropout(cfg["drop_rate"])
+        self.attn = multiHeadAttention(d_in = cfg["emb_dim"], d_out = cfg["emb_dim"], context_length=cfg["context_length"],num_heads=cfg["n_heads"], dropout=cfg["drop_rate"])
     
     def forward(self, x):
+        shortcut = x
+        x = self.norm1(x)
+        x = self.attn(x)
+        x = self.drop_skip_conn(x)
+        x = x + shortcut
+        
+        shortcut = x
+        x = self.norm2(x)
+        x = self.ff(x)
+        x = self.drop_skip_conn(x)
+        x = x + shortcut
         return x
 
-class initialLayerNorm(nn.Module):
+class LayerNorm(nn.Module):
     #layer norm normalizes across the feature dim while Batchnorm normalizes across the batch dim
     def __init__(self, emb_dim, eps=1e-5):
         super().__init__()
@@ -72,7 +89,8 @@ class FeedForward(nn.Module):
         )
         
     def forward(self, x):
-        self.layers(x)
+        return self.layers(x)
+        
 
 if __name__ == "__main__":  
     from dataloader import create_dataloader
@@ -83,6 +101,6 @@ if __name__ == "__main__":
         )
     data_iter = iter(dataloader)
     input, target = next(data_iter)
-    GPT = initialGPTModel(GPT_CONFIG_124M)
+    GPT = GPTModel(GPT_CONFIG_124M)
     logits = GPT(input)
     print(logits, logits.shape)
