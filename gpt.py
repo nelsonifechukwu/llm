@@ -41,7 +41,7 @@ class initialTransformerBlock(nn.Module):
         return x
 
 class initialLayerNorm(nn.Module):
-    #layer norm normalizes across the feature dim while Batchnorm, normalizes across the batch dim
+    #layer norm normalizes across the feature dim while Batchnorm normalizes across the batch dim
     def __init__(self, emb_dim, eps=1e-5):
         super().__init__()
         self.eps = eps
