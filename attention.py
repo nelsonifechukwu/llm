@@ -132,6 +132,7 @@ class multiHeadAttention(nn.Module):
         self.W_q = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_k = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.out_proj = nn.Linear(d_out, d_out)
         self.dropout = nn.Dropout(dropout)
         self.d_out = d_out
         self.num_heads = num_heads
@@ -190,9 +191,9 @@ class multiHeadAttention(nn.Module):
         
         #concatenate the embeddings per head per token
         all_context_vector = all_context_vector.transpose(1,2) # (B, T, H, H_d)
-        all_context_vector = all_context_vector.contiguous().view(B, n_tokens, self.d_out) 
-    
-        
+        all_context_vector = all_context_vector.contiguous().view(B, n_tokens, self.d_out)
+        all_context_vector = self.out_proj(all_context_vector)
+
         return all_context_vector
     
 
