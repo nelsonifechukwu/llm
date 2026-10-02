@@ -41,14 +41,14 @@ class initialTransformerBlock(nn.Module):
         return x
 
 class initialLayerNorm(nn.Module):
+    #layer norm normalizes across the feature dim while Batchnorm, normalizes across the batch dim
     def __init__(self, emb_dim, eps=1e-5):
         super().__init__()
         self.eps = eps
         self.scale = nn.Parameter(torch.ones(emb_dim))
         self.shift = nn.Parameter(torch.zeros(emb_dim))
     def forward(self, x):
-        #go through all the layers
-        #make the mean 0 and variance 1
+        #make the layer activations have mean=0 and variance=1
         mean = x.mean(dim=-1, keepdim=True)
         var = x.var(dim=-1, keepdim=True, unbiased = False) # don't use Bessel correction
         x = (x - mean)/torch.sqrt(var + self.eps) #self.eps to prevent divide by 0
