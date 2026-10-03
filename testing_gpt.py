@@ -39,7 +39,9 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
         idx = torch.cat((idx, idx_next), dim=1) #append to input for next generation
     return idx
 
-test_input = torch.tensor([[3, 4, 5]])
-output = generate_text_simple(model, test_input, 100, 10)
-text = Tokenizer().decode(output.flatten().tolist())
+tt = Tokenizer()
+test_input = "Hello, how are"
+input_tensor = torch.tensor([tt.encode(test_input)])
+output = generate_text_simple(model, input_tensor, 100, 10)
+text = Tokenizer().decode(output.flatten().tolist()) 
 print(text)
