@@ -2,6 +2,7 @@ from dataloader import create_dataloader
 from gpt import GPTModel
 from config import GPT_CONFIG_124M, GPT_XLARGE
 import torch
+from dataprep import Tokenizer
 
 with open("verdict.txt", "r") as f:
     verdict = f.read()
@@ -10,7 +11,7 @@ with open("verdict.txt", "r") as f:
     )
 data_iter = iter(dataloader)
 input, target = next(data_iter)
-model = GPTModel(GPT_XLARGE)
+model = GPTModel(GPT_CONFIG_124M)
 logits = model(input)
 print(logits, logits.shape)
 
@@ -37,3 +38,8 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
         idx_next = torch.argmax(prob, dim=-1, keepdim=True) #get the likely next word
         idx = torch.cat((idx, idx_next), dim=1) #append to input for next generation
     return idx
+
+test_input = torch.tensor([[3, 4, 5]])
+output = generate_text_simple(model, test_input, 100, 10)
+text = Tokenizer().decode(output.flatten().tolist())
+print(text)
