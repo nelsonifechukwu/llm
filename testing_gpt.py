@@ -43,5 +43,5 @@ tt = Tokenizer()
 test_input = "Hello, how are"
 input_tensor = torch.tensor([tt.encode(test_input)])
 output = generate_text_simple(model, input_tensor, 100, 10)
-text = Tokenizer().decode(output.flatten().tolist()) 
+text = tt.decode(output.flatten().tolist()) 
 print(text)
