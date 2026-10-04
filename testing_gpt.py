@@ -32,8 +32,8 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
     for _ in range(max_new_tokens):
         idx_cond = idx[:, -context_size:] #don't go beyond context_length
         with torch.no_grad():
-            logits = model(idx_cond) # get output
-        logits = logits[:, -1, :] # get last embedding from every batch
+            logits = model(idx_cond) # get output (B x T x V)
+        logits = logits[:, -1, :] # get last embedding from every batch (B x V)
         prob = torch.softmax(logits, dim=-1) # convert to prob distribution
         idx_next = torch.argmax(prob, dim=-1, keepdim=True) #get the likely next word
         idx = torch.cat((idx, idx_next), dim=1) #append to input for next generation
