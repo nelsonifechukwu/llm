@@ -128,7 +128,7 @@ def softmax_with_temperature(logits, temperature):
     scaled_logits = logits / temperature
     return torch.softmax(scaled_logits, dim=0)
 
-
+#probabilistic sampling. in top-k sampling, we restrict the sampler to only sample from top-k probabilities from the softmax(logits), and masking others (-inf -> 0 after softmax)
 def generate_text_simple(model, idx, max_new_tokens, context_size):
     for _ in range(max_new_tokens):
         idx_cond = idx[:, -context_size:]  # don't go beyond context_length
