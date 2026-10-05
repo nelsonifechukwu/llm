@@ -134,20 +134,20 @@ def generate_text_simple(
         # convert to prob distribution and get the likely next word #see also
         if top_k:
             top_logits, top_pos = torch.topk(logits, top_k)
+            min_val = top_logits[:, -1]
             logits = torch.where(
-                condition=logits
-                < top_logits[-1],  # the minimum in the top logits
-                input=torch.tensor(float("-inf")),
-                other=top_logits,
+                condition=logits < min_val,  # the minimum in the top logits
+                input=torch.tensor(float('-inf')).to(logits.device),
+                other=logits,
             )
         # reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible token to be generated -> a more uniformly distributed next-token probabilities
         if temperature > 0.0:  # apply temperature scaling & probabilistic sampling.
             scaled_logits = logits / temperature
-            prob = torch.softmax(scaled_logits, dim=0)
+            prob = torch.softmax(scaled_logits, dim=-1)
             idx_next = torch.multinomial(prob, num_samples=1)
         else:
-            prob = torch.softmax(logits, dim=0)
-            idx_next = torch.argmax(prob, dim=-1, keepdim=True)
+            #no need to apply softmax here since it's a monotonic op
+            idx_next = torch.argmax(logits, dim=-1, keepdim=True)
         if idx_next == eos_id: #stop generating if end of sequence is encountered
             break
         idx = torch.cat((idx, idx_next), dim=1)  # append to input for next generation
@@ -161,7 +161,8 @@ def generate_and_print_sample(model, device, start_context):
     encoded = torch.tensor([tt.encode(start_context)]).to(device)
     with torch.no_grad():
         token_ids = generate_text_simple(
-            model=model, idx=encoded, max_new_tokens=50, context_size=context_size
+            model=model, idx=encoded, max_new_tokens=50, context_size=context_size, 
+            temperature = 2.0, top_k=25
         )
     decoded_text = tt.decode(token_ids.flatten().tolist())
     print(decoded_text.replace("\n", " "))
