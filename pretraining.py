@@ -123,10 +123,11 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.train()
     return train_loss, val_loss
 
-#reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible generated token
+#reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible token to be generated -> a more uniformly distributed next-token probabilities
 def softmax_with_temperature(logits, temperature):
     scaled_logits = logits / temperature
     return torch.softmax(scaled_logits, dim=0)
+
 
 def generate_text_simple(model, idx, max_new_tokens, context_size):
     for _ in range(max_new_tokens):
