@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from gpt import GPTModel
 from config import GPT_CONFIG_124M
+from dataloader import create_dataloader
 
 inputs = torch.tensor([[16833, 3626, 6100], [40, 1107, 588]])
 targets = torch.tensor([[3626, 6100, 44], [1107, 588, 109]])
@@ -22,4 +23,15 @@ t_output_probs = torch.cat((target_1, target_2), dim=0)
 #cross entropy loss
 loss = nn.functional.cross_entropy(logits.flatten(0,1) , targets.flatten())
 print(loss)
+
+#Data prep
+with open("verdict.txt", "r") as f:
+    verdict = f.read()
+train_ratio = 0.90
+split_idx = int(train_ratio * len(verdict))
+train_data = verdict[:split_idx]
+val_data = verdict[split_idx:]
+
+train_loader = create_dataloader(train_data, GPT_CONFIG_124M["context_length"], GPT_CONFIG_124M["context_length"], 2)
+val_loader = create_dataloader(val_data, GPT_CONFIG_124M["context_length"], GPT_CONFIG_124M["context_length"], 2)
 
