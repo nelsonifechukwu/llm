@@ -123,20 +123,39 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.train()
     return train_loss, val_loss
 
-#reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible token to be generated -> a more uniformly distributed next-token probabilities
+
+# reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible token to be generated -> a more uniformly distributed next-token probabilities
 def softmax_with_temperature(logits, temperature):
     scaled_logits = logits / temperature
     return torch.softmax(scaled_logits, dim=0)
 
-#probabilistic sampling. in top-k sampling, we restrict the sampler to only sample from top-k probabilities from the softmax(logits), and masking others (-inf -> 0 after softmax)
-def generate_text_simple(model, idx, max_new_tokens, context_size):
+
+# in top-k sampling, we restrict the sampler to only sample from top-k probabilities from the softmax(logits), and masking others (-inf -> 0 after softmax)
+def generate_text_simple(
+    model, idx, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=None):
     for _ in range(max_new_tokens):
         idx_cond = idx[:, -context_size:]  # don't go beyond context_length
         with torch.no_grad():
             logits = model(idx_cond)  # get output (B x T x V)
         logits = logits[:, -1, :]  # get last embedding from every batch (B x V)
-        prob = torch.softmax(logits, dim=-1)  # convert to prob distribution
-        idx_next = torch.argmax(prob, dim=-1, keepdim=True)  # get the likely next word #see also torch.multinomial(prob, num_samples=1).item()
+        # convert to prob distribution and get the likely next word #see also
+        if top_k:
+            top_logits, top_pos = torch.topk(logits, top_k)
+            logits = torch.where(
+                condition=logits
+                < top_logits[-1],  # the minimum in the top logits
+                input=torch.tensor(float("-inf")),
+                other=top_logits,
+            )
+        if temperature > 0.0:  # apply temperature scaling & probabilistic sampling.
+            scaled_logits = logits / temperature
+            prob = torch.softmax(scaled_logits, dim=0)
+            idx_next = torch.multinomial(prob, num_samples=1)
+        else:
+            prob = torch.softmax(logits, dim=0)
+            idx_next = torch.argmax(prob, dim=-1, keepdim=True)
+        if idx_next == eos_id: #stop generating if end of sequence is encountered
+            break
         idx = torch.cat((idx, idx_next), dim=1)  # append to input for next generation
     return idx
 
@@ -169,14 +188,14 @@ train_losses, val_losses, tokens_seen = train_model_simple(
     start_context="I turned to Mrs. Gisburn",
 )
 
+
 def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     import matplotlib.pyplot as plt
     from matplotlib.ticker import MaxNLocator
+
     fig, ax1 = plt.subplots(figsize=(5, 3))
     ax1.plot(epochs_seen, train_losses, label="Training loss")
-    ax1.plot(
-    epochs_seen, val_losses, linestyle="-.", label="Validation loss"
-    )
+    ax1.plot(epochs_seen, val_losses, linestyle="-.", label="Validation loss")
     ax1.set_xlabel("Epochs")
     ax1.set_ylabel("Loss")
     ax1.legend(loc="upper right")
@@ -186,5 +205,7 @@ def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     ax2.set_xlabel("Tokens seen")
     fig.tight_layout()
     plt.show()
+
+
 epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
 plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
