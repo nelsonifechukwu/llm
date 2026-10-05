@@ -1,4 +1,4 @@
-from dataprep import Tokenizer
+from tokenizer import Tokenizer
 import torch
 from torch.utils.data import DataLoader, Dataset
 
