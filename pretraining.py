@@ -123,13 +123,6 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.train()
     return train_loss, val_loss
 
-
-# reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible token to be generated -> a more uniformly distributed next-token probabilities
-def softmax_with_temperature(logits, temperature):
-    scaled_logits = logits / temperature
-    return torch.softmax(scaled_logits, dim=0)
-
-
 # in top-k sampling, we restrict the sampler to only sample from top-k probabilities from the softmax(logits), and masking others (-inf -> 0 after softmax)
 def generate_text_simple(
     model, idx, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=None):
@@ -147,6 +140,7 @@ def generate_text_simple(
                 input=torch.tensor(float("-inf")),
                 other=top_logits,
             )
+        # reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible token to be generated -> a more uniformly distributed next-token probabilities
         if temperature > 0.0:  # apply temperature scaling & probabilistic sampling.
             scaled_logits = logits / temperature
             prob = torch.softmax(scaled_logits, dim=0)
