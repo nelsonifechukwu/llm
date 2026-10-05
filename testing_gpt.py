@@ -2,7 +2,7 @@ from dataloader import create_dataloader
 from gpt import GPTModel
 from config import GPT_CONFIG_124M, GPT_XLARGE
 import torch
-from dataprep import Tokenizer
+from tokenizer import Tokenizer
 
 with open("verdict.txt", "r") as f:
     verdict = f.read()
