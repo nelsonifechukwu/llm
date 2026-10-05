@@ -123,6 +123,10 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.train()
     return train_loss, val_loss
 
+#reducing temperature -> tends towards arg_max like certainty, increasing it adds more variety to the possible generated token
+def softmax_with_temperature(logits, temperature):
+    scaled_logits = logits / temperature
+    return torch.softmax(scaled_logits, dim=0)
 
 def generate_text_simple(model, idx, max_new_tokens, context_size):
     for _ in range(max_new_tokens):
@@ -131,7 +135,7 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
             logits = model(idx_cond)  # get output (B x T x V)
         logits = logits[:, -1, :]  # get last embedding from every batch (B x V)
         prob = torch.softmax(logits, dim=-1)  # convert to prob distribution
-        idx_next = torch.argmax(prob, dim=-1, keepdim=True)  # get the likely next word
+        idx_next = torch.argmax(prob, dim=-1, keepdim=True)  # get the likely next word #see also torch.multinomial(prob, num_samples=1).item()
         idx = torch.cat((idx, idx_next), dim=1)  # append to input for next generation
     return idx
 
