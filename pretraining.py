@@ -6,7 +6,7 @@ import torch.nn as nn
 
 torch.manual_seed(123)
 from gpt import GPTModel
-from config import GPT_CONFIG_124M, GPT_XLARGE
+from config import GPT_CONFIG_124M, GPT_XLARGE 
 from dataloader import create_dataloader
 from tokenizer import Tokenizer
 
@@ -123,7 +123,6 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.train()
     return train_loss, val_loss
 
-# in top-k sampling, we restrict the sampler to only sample from top-k probabilities from the softmax(logits), and masking others (-inf -> 0 after softmax)
 def generate_text_simple(
     model, idx, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=None):
     for _ in range(max_new_tokens):
@@ -132,9 +131,11 @@ def generate_text_simple(
             logits = model(idx_cond)  # get output (B x T x V)
         logits = logits[:, -1, :]  # get last embedding from every batch (B x V)
         # convert to prob distribution and get the likely next word #see also
+        
+        # in top-k sampling, we restrict the sampler to only sample from top-k probabilities from the softmax(logits), and masking others (-inf -> 0 after softmax)
         if top_k:
             top_logits, top_pos = torch.topk(logits, top_k)
-            min_val = top_logits[:, -1]
+            min_val = top_logits[:, -1] #top_logits is in descending order
             logits = torch.where(
                 condition=logits < min_val,  # the minimum in the top logits
                 input=torch.tensor(float('-inf')).to(logits.device),
