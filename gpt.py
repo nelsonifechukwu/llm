@@ -63,7 +63,7 @@ class LayerNorm(nn.Module):
         #make the layer activations have mean=0 and variance=1
         mean = x.mean(dim=-1, keepdim=True)
         var = x.var(dim=-1, keepdim=True, unbiased = False) # don't use Bessel correction
-        x = (x - mean)/torch.sqrt(var + self.eps) #self.eps to prevent divide by 0
+        x = (x - mean)/torch.sqrt(var + self.eps) #self.eps to prevent division by 0 error
         return x * self.scale + self.shift
     
 class GELU(nn.Module):
