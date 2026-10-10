@@ -168,23 +168,7 @@ def generate_and_print_sample(model, device, start_context):
     decoded_text = tt.decode(token_ids.flatten().tolist())
     print(decoded_text.replace("\n", " "))
     model.train()
-
-
-optimizer = torch.optim.AdamW(model.parameters(), lr=0.0004, weight_decay=0.1)
-num_epochs = 10
-train_losses, val_losses, tokens_seen = train_model_simple(
-    model,
-    train_loader,
-    val_loader,
-    optimizer,
-    device,
-    num_epochs=num_epochs,
-    eval_freq=5,
-    eval_iter=5,
-    start_context="I turned to Mrs. Gisburn",
-)
-
-
+    
 def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     import matplotlib.pyplot as plt
     from matplotlib.ticker import MaxNLocator
@@ -203,5 +187,20 @@ def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     plt.show()
 
 
-epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
-plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
+if __name__ == "__main__":
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.0004, weight_decay=0.1)
+    num_epochs = 10
+    train_losses, val_losses, tokens_seen = train_model_simple(
+        model,
+        train_loader,
+        val_loader,
+        optimizer,
+        device,
+        num_epochs=num_epochs,
+        eval_freq=5,
+        eval_iter=5,
+        start_context="I turned to Mrs. Gisburn",
+    )
+
+    epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
+    plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
