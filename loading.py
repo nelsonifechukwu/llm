@@ -103,4 +103,4 @@ def load_weights_into_gpt(gpt, params):
 load_weights_into_gpt(gpt, params)
 gpt.to(device)
 
-generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?")
+generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?", 1.0, 0.0)
