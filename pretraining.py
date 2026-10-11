@@ -68,11 +68,11 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
         return total_loss / num_batches
 
 
-with torch.no_grad():
-    train_loss = calc_loss_loader(train_loader, model, device)
-    val_loss = calc_loss_loader(val_loader, model, device)
-print("Training loss:", train_loss)
-print("Validation loss:", val_loss)
+# with torch.no_grad():
+#     train_loss = calc_loss_loader(train_loader, model, device)
+#     val_loss = calc_loss_loader(val_loader, model, device)
+# print("Training loss:", train_loss)
+# print("Validation loss:", val_loss)
 
 
 def train_model_simple(
