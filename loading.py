@@ -4,9 +4,7 @@ import torch
 import numpy as np
 from pretraining import generate_and_print_sample
 
-from gpt_download import download_and_load_gpt2
-settings, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2") 
-    
+
 model_configs = {
     "gpt2-small (124M)": {"emb_dim": 768, "n_layers": 12, "n_heads": 12},
     "gpt2-medium (355M)": {"emb_dim": 1024, "n_layers": 24, "n_heads": 16},
@@ -100,6 +98,8 @@ def load_weights_into_gpt(gpt, params):
     gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"])
 
 if __name__ == "__main__":
+    from gpt_download import download_and_load_gpt2
+    settings, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2") 
     load_weights_into_gpt(gpt, params)
     gpt.to(device)
     generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?", 1.0, 0.0)
