@@ -3,9 +3,12 @@ from gpt import GPTModel
 from loading import load_weights_into_gpt
 import torch
 import torch.nn as nn
+from pretraining import calc_loss_loader
 
 from gpt_download import download_and_load_gpt2
+from dataset import train_loader, val_loader
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
 model_configs = {
     "gpt2-small (124M)": {"emb_dim": 768, "n_layers": 12, "n_heads": 12},
     "gpt2-medium (355M)": {"emb_dim": 1024, "n_layers": 24, "n_heads": 16},
@@ -49,13 +52,12 @@ for param in model.final_norm.parameters():
     param.requires_grad = True
     
 
-## get the argmax of the last token (the last token is the one with the complete info of all tokens from causal masking)
+## only optimise the last token (the last token is the one with the complete info of all tokens from causal masking)
 
 input = torch.tensor([[22, 23, 1092]])
 output = model(input)
 prob = torch.softmax(output[:, -1, :], dim=-1)
 label = torch.argmax(prob)
-print(label.item())
 
 ## calculate classification acc
 def calc_accuracy_loader(data_loader, model, device, num_batches=None):
@@ -77,3 +79,93 @@ def calc_accuracy_loader(data_loader, model, device, num_batches=None):
         else:
             break
         return correct_predictions / num_examples
+    
+def train_classifier_simple(
+    model, train_loader, val_loader, optimizer, device,
+    num_epochs, eval_freq, eval_iter
+):
+    train_losses, val_losses, train_accs, val_accs = [], [], [], []
+    examples_seen, global_step = 0, -1
+
+    for epoch in range(num_epochs):
+        model.train()
+
+        for input_batch, target_batch in train_loader:
+            optimizer.zero_grad()
+            loss = calc_loss_batch(
+                input_batch, target_batch, model, device
+            )
+            loss.backward()
+            optimizer.step()
+            examples_seen += input_batch.shape[0]
+            global_step += 1
+
+            if global_step % eval_freq == 0:
+                train_loss, val_loss = evaluate_model(
+                    model, train_loader, val_loader, device, eval_iter
+                )
+                train_losses.append(train_loss)
+                val_losses.append(val_loss)
+                print(
+                    f"Ep {epoch+1} (Step {global_step:06d}): "
+                    f"Train loss {train_loss:.3f}, "
+                    f"Val loss {val_loss:.3f}"
+                )
+
+        train_accuracy = calc_accuracy_loader(
+            train_loader, model, device, num_batches=eval_iter
+        )
+        val_accuracy = calc_accuracy_loader(
+            val_loader, model, device, num_batches=eval_iter
+        )
+
+        print(f"Training accuracy: {train_accuracy*100:.2f}% | ", end="")
+        print(f"Validation accuracy: {val_accuracy*100:.2f}%")
+        train_accs.append(train_accuracy)
+        val_accs.append(val_accuracy)
+
+    return train_losses, val_losses, train_accs, val_accs, examples_seen
+
+def calc_loss_batch(input_batch, target_batch, model, device):
+    #focus on optimizing only the last token, rather than all tokens in input_batch
+    input_batch = input_batch.to(device)
+    target_batch = target_batch.to(device)
+    logits = model(input_batch)[:, -1, :]
+    loss = torch.nn.functional.cross_entropy(logits, target_batch)
+    return loss
+
+def calc_loss_loader(data_loader, model, device, num_batches=None):
+    total_loss = 0.0
+    if len(data_loader) == 0:
+        return float("nan")
+    elif num_batches is None:
+        num_batches = len(data_loader)
+    else:
+        num_batches = min(num_batches, len(data_loader))
+    for i, (in_batch, out_batch) in enumerate(data_loader):
+        if i < num_batches:
+            loss = calc_loss_batch(in_batch, out_batch, model, device)
+            total_loss += loss.item()
+        else:
+            break
+        return total_loss / num_batches
+
+def evaluate_model(model, train_loader, val_loader, device, eval_iter):
+    model.eval()
+    with torch.no_grad():
+        train_loss = calc_loss_loader(train_loader, model, device, num_batches=eval_iter)
+        val_loss = calc_loss_loader(val_loader, model, device, num_batches=eval_iter)
+    model.train()
+    return train_loss, val_loss
+
+if __name__ == "__main__":
+    import time
+    start_time = time.time()
+    torch.manual_seed(123)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5, weight_decay=0.1)
+    num_epochs = 5
+    
+    train_losses, val_losses, train_accs, val_accs, examples_seen = train_classifier_simple(model, train_loader, val_loader, optimizer, device, num_epochs=num_epochs, eval_freq=50,eval_iter=5)
+    end_time = time.time()
+    execution_time_minutes = (end_time - start_time) / 60
+    print(f"Training completed in {execution_time_minutes:.2f} minutes.")
