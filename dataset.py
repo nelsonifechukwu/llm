@@ -3,7 +3,7 @@ import zipfile
 import os
 from pathlib import Path
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from tokenizer import Tokenizer
 
 
@@ -64,9 +64,10 @@ train_df.to_csv("train.csv", index=None)
 validation_df.to_csv("validation.csv", index=None)
 test_df.to_csv("test.csv", index=None)
 
-#pad accroding to the longest text in the dataset
+
+# pad accroding to the longest text in the dataset
 class SpamDataset(Dataset):
-    def __init__(self, csv_file, tokenizer, max_length=None, pad_token_id=50256):
+    def __init__(self, csv_file, max_length=None, pad_token_id=50256):
         tt = Tokenizer()
         self.data = pd.read_csv(csv_file)
 
@@ -101,3 +102,41 @@ class SpamDataset(Dataset):
             if encoded_length > max_length:
                 max_length = encoded_length
         return max_length
+
+
+train_dataset = SpamDataset(
+    csv_file="train.csv",
+    max_length=None,
+)
+
+val_dataset = SpamDataset(
+    csv_file="validation.csv",
+    max_length=train_dataset.max_length,
+)
+test_dataset = SpamDataset(
+    csv_file="test.csv",
+    max_length=train_dataset.max_length,
+)
+
+num_workers = 0
+batch_size = 8
+torch.manual_seed(123)
+train_loader = DataLoader(
+    dataset=train_dataset,
+    batch_size=batch_size,
+    shuffle=True,
+    num_workers=num_workers,
+    drop_last=True,
+)
+val_loader = DataLoader(
+    dataset=val_dataset,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    drop_last=False,
+)
+test_loader = DataLoader(
+    dataset=test_dataset,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    drop_last=False,
+)
