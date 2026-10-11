@@ -42,3 +42,9 @@ for param in model.parameters():
 ## modify output head
 num_class = 2
 model.out_head = nn.Linear(in_features=BASE_CONFIG["emb_dim"], out_features=num_class)
+
+## let's allow more layers (close to the output head) to be trainable
+for param in model.transformer_blocks[-1].parameters():
+    param.requires_grad = True
+for param in model.final_norm.parameters():
+    param.requires_grad = True
