@@ -99,8 +99,7 @@ def load_weights_into_gpt(gpt, params):
     gpt.final_norm.shift = assign(gpt.final_norm.shift, params["b"])
     gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"])
 
-
-load_weights_into_gpt(gpt, params)
-gpt.to(device)
-
-generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?", 1.0, 0.0)
+if __name__ == "__main__":
+    load_weights_into_gpt(gpt, params)
+    gpt.to(device)
+    generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?", 1.0, 0.0)
