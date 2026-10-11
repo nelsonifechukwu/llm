@@ -102,4 +102,4 @@ if __name__ == "__main__":
     settings, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2") 
     load_weights_into_gpt(gpt, params)
     gpt.to(device)
-    generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?", 1.0, 0.0)
+    generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?", 50, 1.0, 0.0)
