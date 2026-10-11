@@ -1,6 +1,7 @@
 from pretraining import generate_and_print_sample
 from gpt import GPTModel
 from loading import load_weights_into_gpt
+import torch
 import torch.nn as nn
 
 from gpt_download import download_and_load_gpt2
@@ -31,8 +32,6 @@ settings, params = download_and_load_gpt2(model_size=model_size, models_dir="gpt
 load_weights_into_gpt(model, params)
 model.eval()
 
-generate_and_print_sample(model, "cpu", "Hello, who are you?", 50, 1.0, 0.0)
-
 # Classification Finetuning
 
 ## freeze all layers
@@ -48,3 +47,13 @@ for param in model.transformer_blocks[-1].parameters():
     param.requires_grad = True
 for param in model.final_norm.parameters():
     param.requires_grad = True
+    
+
+## get the argmax of the last token (the last token is the one with the complete info of all tokens from causal masking)
+
+input = torch.tensor([[22, 23, 1092]])
+output = model(input)
+prob = torch.softmax(output[:, -1, :], dim=-1)
+label = torch.argmax(prob)
+print(label.item())
+
