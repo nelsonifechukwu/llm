@@ -5,7 +5,7 @@ from typing import Optional, Union
 # from importlib.metadata import version
 # print("tiktoken version:", version("tiktoken"))
 
-with open("verdict.txt", "r") as f:
+with open("data/verdict.txt", "r") as f:
     verdict = f.read()
 preprocessed = re.split(r'([,.:;?_!"()\']|--|\s)', verdict)
 preprocessed = [token for token in preprocessed if token.strip()]

@@ -1,5 +1,9 @@
 __pycache__/
 .vscode
-gpt2/
-sms_spam_collection*
+data/gpt2/
+data/sms_spam_collection*
 *.csv
+*.pth
+*-plot.pdf
+.DS_Store
+!checkpoints/.gitkeep

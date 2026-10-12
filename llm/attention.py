@@ -3,7 +3,7 @@
 #simple attention
 import torch
 import torch.nn as nn
-from embedding import input_embeddings
+from llm.embedding import input_embeddings
 
 input = input_embeddings[0] 
 #to calculate intermediate attention scores, we perform a dot product between the query token and other tokens in the sequence (as a measure of similarity)

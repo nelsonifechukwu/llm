@@ -1,9 +1,9 @@
-from tokenizer import Tokenizer
+from llm.tokenizer import Tokenizer
 import torch
 from torch.utils.data import DataLoader, Dataset
 
 
-with open("verdict.txt", "r", encoding="utf-8") as f:
+with open("data/verdict.txt", "r", encoding="utf-8") as f:
     verdict = f.read()
 
 # enc_text = tokenizer.encode(verdict)

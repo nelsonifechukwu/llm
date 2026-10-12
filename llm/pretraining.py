@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 
 torch.manual_seed(123)
-from gpt import GPTModel
-from config import GPT_CONFIG_124M, GPT_XLARGE 
-from dataloader import create_dataloader
-from tokenizer import Tokenizer
+from llm.gpt import GPTModel
+from llm.config import GPT_CONFIG_124M, GPT_XLARGE 
+from llm.dataloader import create_dataloader
+from llm.tokenizer import Tokenizer
 
 cfg = GPT_CONFIG_124M
 
@@ -28,7 +28,7 @@ target_2 = prob[1, [0, 1, 2], targets[1]].unsqueeze(0)
 t_output_probs = torch.cat((target_1, target_2), dim=0)
 
 # Data prep
-with open("verdict.txt", "r") as f:
+with open("data/verdict.txt", "r") as f:
     verdict = f.read()
 train_ratio = 0.90
 split_idx = int(train_ratio * len(verdict))

@@ -1,8 +1,8 @@
-from gpt import GPTModel
-from config import GPT_CONFIG_124M
+from llm.gpt import GPTModel
+from llm.config import GPT_CONFIG_124M
 import torch
 import numpy as np
-from pretraining import generate_and_print_sample
+from llm.pretraining import generate_and_print_sample
 
 
 model_configs = {
@@ -98,8 +98,8 @@ def load_weights_into_gpt(gpt, params):
     gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"])
 
 if __name__ == "__main__":
-    from gpt_download import download_and_load_gpt2
-    settings, params = download_and_load_gpt2(model_size="124M", models_dir="gpt2") 
+    from llm.gpt_download import download_and_load_gpt2
+    settings, params = download_and_load_gpt2(model_size="124M", models_dir="data/gpt2") 
     load_weights_into_gpt(gpt, params)
     gpt.to(device)
     generate_and_print_sample(gpt, device, "Hello, what's the meaning of Life?", 50, 1.0, 0.0)

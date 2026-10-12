@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from attention import multiHeadAttention
+from llm.attention import multiHeadAttention
 
 #TTLO - Tokenization (T), Transformer(T), Layernorm (L), OutputHead(O)
 #LG(A/F)DS - Layer norm, GELU activation, Attn, FFN, Dropout, Shortcut connection

@@ -1,6 +1,6 @@
 import torch
-from embedding import input_embeddings
-from attention import causalAttention, multiHeadAttention
+from llm.embedding import input_embeddings
+from llm.attention import causalAttention, multiHeadAttention
 
 x_1 = input_embeddings[0][0] #1 x 256 from 8 x 4 x 256
 d_in = int(input_embeddings.shape[2]) #256

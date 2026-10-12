@@ -1,12 +1,12 @@
-from pretraining import generate_and_print_sample
-from gpt import GPTModel
-from loading import load_weights_into_gpt
+from llm.pretraining import generate_and_print_sample
+from llm.gpt import GPTModel
+from llm.loading import load_weights_into_gpt
 import torch
 import torch.nn as nn
-from pretraining import calc_loss_loader
+from llm.pretraining import calc_loss_loader
 
-from gpt_download import download_and_load_gpt2
-from dataset import train_loader, val_loader
+from llm.gpt_download import download_and_load_gpt2
+from llm.dataset import train_loader, val_loader
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model_configs = {
@@ -31,7 +31,7 @@ BASE_CONFIG.update(model_configs[CHOOSE_MODEL])
 model = GPTModel(BASE_CONFIG)
 model_size = CHOOSE_MODEL.split(" ")[-1].lstrip("(").rstrip(")")
 
-settings, params = download_and_load_gpt2(model_size=model_size, models_dir="gpt2")
+settings, params = download_and_load_gpt2(model_size=model_size, models_dir="data/gpt2")
 load_weights_into_gpt(model, params)
 model.eval()
 
@@ -200,7 +200,7 @@ if __name__ == "__main__":
         ax2.plot(examples_seen, train_values, alpha=0)
         ax2.set_xlabel("Examples seen")
         fig.tight_layout()
-        plt.savefig(f"{label}-plot.pdf")
+        plt.savefig(f"assets/{label}-plot.pdf")
         plt.show()
     epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
     examples_seen_tensor = torch.linspace(0, examples_seen, len(train_losses))
@@ -212,4 +212,4 @@ if __name__ == "__main__":
     label="accuracy"
     )
         
-    torch.save(model.state_dict(), "classifier.pth")
+    torch.save(model.state_dict(), "checkpoints/classifier.pth")

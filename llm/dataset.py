@@ -4,12 +4,12 @@ import os
 from pathlib import Path
 import torch
 from torch.utils.data import Dataset, DataLoader
-from tokenizer import Tokenizer
+from llm.tokenizer import Tokenizer
 
 
 url = "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip"
-zip_path = "sms_spam_collection.zip"
-extracted_path = "sms_spam_collection"
+zip_path = "data/sms_spam_collection.zip"
+extracted_path = "data/sms_spam_collection"
 data_file_path = Path(extracted_path) / "SMSSpamCollection.tsv"
 
 
@@ -58,9 +58,9 @@ def random_split(df, train_frac, validation_frac):
 
 train_df, validation_df, test_df = random_split(balanced_df, 0.7, 0.1)
 
-train_df.to_csv("train.csv", index=None)
-validation_df.to_csv("validation.csv", index=None)
-test_df.to_csv("test.csv", index=None)
+train_df.to_csv("data/train.csv", index=None)
+validation_df.to_csv("data/validation.csv", index=None)
+test_df.to_csv("data/test.csv", index=None)
 
 
 # pad accroding to the longest text in the dataset
@@ -103,16 +103,16 @@ class SpamDataset(Dataset):
 
 
 train_dataset = SpamDataset(
-    csv_file="train.csv",
+    csv_file="data/train.csv",
     max_length=None,
 )
 
 val_dataset = SpamDataset(
-    csv_file="validation.csv",
+    csv_file="data/validation.csv",
     max_length=train_dataset.max_length,
 )
 test_dataset = SpamDataset(
-    csv_file="test.csv",
+    csv_file="data/test.csv",
     max_length=train_dataset.max_length,
 )
 

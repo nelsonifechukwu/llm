@@ -1,10 +1,10 @@
-from dataloader import create_dataloader
-from gpt import GPTModel
-from config import GPT_CONFIG_124M, GPT_XLARGE
+from llm.dataloader import create_dataloader
+from llm.gpt import GPTModel
+from llm.config import GPT_CONFIG_124M, GPT_XLARGE
 import torch
-from tokenizer import Tokenizer
+from llm.tokenizer import Tokenizer
 
-with open("verdict.txt", "r") as f:
+with open("data/verdict.txt", "r") as f:
     verdict = f.read()
     dataloader = create_dataloader(
         verdict, batch_size=3, context_size=5, stride=5, shuffle=False

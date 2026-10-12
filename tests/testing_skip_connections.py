@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from gpt import GELU
+from llm.gpt import GELU
 
 class skipConnection(nn.Module):  
     def __init__(self, layer_sizes, skip=False):

@@ -152,7 +152,7 @@ def load_gpt2_params_from_tf_ckpt(ckpt_path, settings):
     return params
 
 if __name__ == "__main__":
-    from gpt_download import download_and_load_gpt2
+    from llm.gpt_download import download_and_load_gpt2
     settings, params = download_and_load_gpt2(
-    model_size="124M", models_dir="gpt2"
+    model_size="124M", models_dir="data/gpt2"
     )
