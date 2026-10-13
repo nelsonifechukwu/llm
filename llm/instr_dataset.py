@@ -77,7 +77,7 @@ def custom_collate_fn(batch, pad_token_id=50256, ignore_index = -100, max_length
         inputs = torch.tensor(padded[:-1])
         targets = torch.tensor(padded[1:])
         
-        #replace all the extra pad_token_id except the first one with ignore_index
+        #replace all the extra pad_token_id except the first one with ignore_index and default ignore_index for cross_entropy loss in pytorch is -100 -> the token id should be ignored in computing the cross_entropy loss
         mask = targets == pad_token_id
         indices = torch.nonzero(mask).squeeze(0)
         if indices.numel() > 1:
