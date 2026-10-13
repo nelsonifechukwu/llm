@@ -166,8 +166,9 @@ def generate_and_print_sample(model, device, start_context, max_tokens = 50, tem
             temperature = temperature, top_k=top_k,
         )
     decoded_text = tt.decode(token_ids.flatten().tolist())
-    print(decoded_text.replace("\n", " "))
+    #print(decoded_text.replace("\n", " "))
     model.train()
+    return decoded_text.replace("\n", " ")
     
 def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     import matplotlib.pyplot as plt
