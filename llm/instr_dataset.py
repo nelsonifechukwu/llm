@@ -64,7 +64,7 @@ class InstructionDataset(Dataset):
         return len(self.data)
 
 
-def custom_collate_fn(batch, pad_token_id=EOF_TOKEN, ignore_index = -100, max_length= None,device="cpu"):
+def custom_collate_fn(batch, pad_token_id=EOF_TOKEN, ignore_index = -100, max_length= None,device=None):
     batch_max_length = max(
         len(item) + 1 for item in batch
     )  # +1 to keep the appended last token when shifting the input to make the target
@@ -93,9 +93,6 @@ def custom_collate_fn(batch, pad_token_id=EOF_TOKEN, ignore_index = -100, max_le
     targets_tensor = torch.stack(targets_lst).to(device)
     return inputs_tensor, targets_tensor
 
-
-inputs_1 = [0, 1, 2, 3, 4]
-inputs_2 = [5, 6]
-inputs_3 = [7, 8, 9]
-batch = (inputs_1, inputs_2, inputs_3)
-print(custom_collate_fn(batch))
+#create new custom_collate_fn with modified args
+from functools import partial 
+new_custom_collate_fn = partial(custom_collate_fn, max_length=1024, device=device)
