@@ -20,4 +20,4 @@ model_size=model_size,
 models_dir="data/gpt2"
 )
 model = GPTModel(BASE_CONFIG)
-model.eval();
+model.eval()
