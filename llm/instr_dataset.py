@@ -13,6 +13,8 @@ url = (
 )
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 EOF_TOKEN = 50256
+
+
 def download_and_load_file(file_path, url):
     if not os.path.exists(file_path):
         with urllib.request.urlopen(url) as response:
@@ -64,7 +66,9 @@ class InstructionDataset(Dataset):
         return len(self.data)
 
 
-def custom_collate_fn(batch, pad_token_id=EOF_TOKEN, ignore_index = -100, max_length= None,device=None):
+def custom_collate_fn(
+    batch, pad_token_id=EOF_TOKEN, ignore_index=-100, max_length=None, device=None
+):
     batch_max_length = max(
         len(item) + 1 for item in batch
     )  # +1 to keep the appended last token when shifting the input to make the target
@@ -76,23 +80,58 @@ def custom_collate_fn(batch, pad_token_id=EOF_TOKEN, ignore_index = -100, max_le
         padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
         inputs = torch.tensor(padded[:-1])
         targets = torch.tensor(padded[1:])
-        
-        #replace all the extra pad_token_id except the first one with ignore_index and default ignore_index for cross_entropy loss in pytorch is -100 -> the token id should be ignored in computing the cross_entropy loss
+
+        # replace all the extra pad_token_id except the first one with ignore_index and default ignore_index for cross_entropy loss in pytorch is -100 -> the token id should be ignored in computing the cross_entropy loss
         mask = targets == pad_token_id
         indices = torch.nonzero(mask).squeeze(0)
         if indices.numel() > 1:
             targets[indices[1:]] = ignore_index
-            
+
         if max_length is not None:
             inputs = inputs[:max_length]
             targets = targets[:max_length]
-            
+
         inputs_lst.append(inputs)
         targets_lst.append(targets)
     inputs_tensor = torch.stack(inputs_lst).to(device)
     targets_tensor = torch.stack(targets_lst).to(device)
     return inputs_tensor, targets_tensor
 
-#create new custom_collate_fn with modified args
-from functools import partial 
+
+# create new custom_collate_fn with modified args
+from functools import partial
+
 new_custom_collate_fn = partial(custom_collate_fn, max_length=1024, device=device)
+
+# defining Dataloaders
+tt = Tokenizer()
+n_workers = 0
+batch_size = 8
+train_dataset = InstructionDataset(train_data, tt)
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=batch_size,
+    collate_fn=new_custom_collate_fn,
+    shuffle=True,
+    drop_last=True,
+    num_workers=n_workers,
+)
+val_dataset = InstructionDataset(val_data, tt)
+val_loader = DataLoader(
+    val_dataset,
+    batch_size=batch_size,
+    collate_fn=new_custom_collate_fn,
+    shuffle=False,
+    drop_last=False,
+    num_workers=n_workers,
+)
+test_dataset = InstructionDataset(test_data, tt)
+test_loader = DataLoader(
+    test_dataset,
+    batch_size=batch_size,
+    collate_fn=new_custom_collate_fn,
+    shuffle=False,
+    drop_last=False,
+    num_workers=n_workers,
+)
+
