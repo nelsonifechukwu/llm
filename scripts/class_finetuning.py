@@ -1,4 +1,3 @@
-from llm.pretraining import generate_and_print_sample
 from llm.gpt import GPTModel
 from llm.loading import load_weights_into_gpt
 import torch
