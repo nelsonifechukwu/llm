@@ -74,6 +74,7 @@ def custom_collate_fn(
     )  # +1 to keep the appended last token when shifting the input to make the target
     inputs_lst, targets_lst = [], []
     for item in batch:
+        #padding is considered per batch not the entire dataset
         new_item = item.copy()
         new_item += [pad_token_id]
 
