@@ -156,6 +156,21 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.train()
     return train_loss, val_loss
 
+def classify_review(text, model, device, max_length=None,pad_token_id=50256):
+    from llm.tokenizer import Tokenizer
+    tt = Tokenizer()
+    model.eval()
+    input_ids = tt.encode(text)
+    supported_context_length = model.pos_emb.weight.shape[1]
+    eff_max_length = min(max_length, supported_context_length)
+    input_ids = input_ids[:eff_max_length]
+    input_ids += [pad_token_id] * (eff_max_length - len(input_ids))
+    input_tensor = torch.tensor(input_ids, device=device).unsqueeze(0)
+
+    with torch.no_grad():
+        logits = model(input_tensor)[:, -1, :]
+    predicted_label = torch.argmax(logits, dim=-1).item()
+    return "spam" if predicted_label == 1 else "not spam"
 
 if __name__ == "__main__":
     import time
@@ -211,5 +226,6 @@ if __name__ == "__main__":
     #load and test model
     model.load_state_dict(torch.load("checkpoints/classifier.pth", weights_only=True))
     model.eval()
+    
     input = "Win 100M now. Click this link"
-    generate_and_print_sample(model, device, input, max_tokens=1)
+    print(classify_review(input, model, device, 20))
