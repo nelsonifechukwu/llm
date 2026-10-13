@@ -65,7 +65,7 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
             total_loss += loss.item()
         else:
             break
-        return total_loss / num_batches
+    return total_loss / num_batches
 
 
 # with torch.no_grad():
