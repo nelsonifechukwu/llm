@@ -94,4 +94,4 @@ inputs_1 = [0, 1, 2, 3, 4]
 inputs_2 = [5, 6]
 inputs_3 = [7, 8, 9]
 batch = (inputs_1, inputs_2, inputs_3)
-print(custom_collate_draft_2(batch))
+print(custom_collate_fn(batch))
