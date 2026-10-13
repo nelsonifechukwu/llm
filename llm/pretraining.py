@@ -11,7 +11,7 @@ from llm.dataloader import create_dataloader
 from llm.tokenizer import Tokenizer
 
 cfg = GPT_CONFIG_124M
-
+EOS_ID = 50256
 model = GPTModel(GPT_CONFIG_124M)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
@@ -124,7 +124,7 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     return train_loss, val_loss
 
 def generate_text_simple(
-    model, idx, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=None):
+    model, idx, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=EOS_ID):
     for _ in range(max_new_tokens):
         idx_cond = idx[:, -context_size:]  # don't go beyond context_length
         with torch.no_grad():
