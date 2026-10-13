@@ -207,3 +207,9 @@ if __name__ == "__main__":
     )
         
     torch.save(model.state_dict(), "checkpoints/classifier.pth")
+    
+    #load and test model
+    model.load_state_dict(torch.load("checkpoints/classifier.pth", weights_only=True))
+    model.eval()
+    input = "Win 100M now. Click this link"
+    generate_and_print_sample(model, device, input, max_tokens=1)
