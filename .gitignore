@@ -7,3 +7,4 @@ data/sms_spam_collection*
 *-plot.pdf
 .DS_Store
 !checkpoints/.gitkeep
+data/
