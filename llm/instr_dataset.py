@@ -44,3 +44,37 @@ val_portion = len(data) - train_portion - test_portion
 train_data = data[:train_portion]
 test_data = data[train_portion : train_portion + test_portion]
 val_data = data[train_portion + test_portion :]
+
+#Batch the dataset (in this batching, we want automatic padding. So, the collate func has to change)
+class InstructionDataset(Dataset):
+    def __init__(self, data, tokenizer):
+        self.data = data
+        self.encoded_texts = []
+        for entry in data:
+            instruction_plus_input = format(entry)
+            response_text = f"\n\n### Response:\n{entry['output']}"
+            full_text = instruction_plus_input + response_text
+            self.encoded_texts.append(tokenizer.encode(full_text))
+
+    def __getitem__(self, index):
+        return self.encoded_texts[index]
+
+    def __len__(self):
+        return len(self.data)
+
+
+def custom_collate_draft_2(batch, pad_token_id=50256, device="cpu"):
+    batch_max_length = max(len(item) + 1 for item in batch) #+1 to keep the appended last token when shifting the input to make the target
+    inputs_lst, targets_lst = [], []
+    for item in batch:
+        new_item = item.copy()
+        new_item += [pad_token_id]
+        
+        padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
+        inputs = torch.tensor(padded[:-1])
+        targets = torch.tensor(padded[1:])
+        inputs_lst.append(inputs)
+        targets_lst.append(targets)
+    inputs_tensor = torch.stack(inputs_lst).to(device)
+    targets_tensor = torch.stack(targets_lst).to(device)
+    return inputs_tensor, targets_tensor
