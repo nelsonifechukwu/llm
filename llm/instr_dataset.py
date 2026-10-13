@@ -11,8 +11,8 @@ url = (
     "https://raw.githubusercontent.com/rasbt/LLMs-from-scratch"
     "/main/ch07/01_main-chapter-code/instruction-data.json"
 )
-
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+EOF_TOKEN = 50256
 def download_and_load_file(file_path, url):
     if not os.path.exists(file_path):
         with urllib.request.urlopen(url) as response:
@@ -64,7 +64,7 @@ class InstructionDataset(Dataset):
         return len(self.data)
 
 
-def custom_collate_fn(batch, pad_token_id=50256, ignore_index = -100, max_length= None,device="cpu"):
+def custom_collate_fn(batch, pad_token_id=EOF_TOKEN, ignore_index = -100, max_length= None,device="cpu"):
     batch_max_length = max(
         len(item) + 1 for item in batch
     )  # +1 to keep the appended last token when shifting the input to make the target
