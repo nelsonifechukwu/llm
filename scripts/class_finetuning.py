@@ -6,7 +6,7 @@ import torch.nn as nn
 from llm.pretraining import calc_loss_loader
 
 from llm.gpt_download import download_and_load_gpt2
-from llm.dataset import train_loader, val_loader
+from llm.spam_dataset import train_loader, val_loader
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model_configs = {
