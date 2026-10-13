@@ -3,7 +3,6 @@ from llm.gpt import GPTModel
 from llm.loading import load_weights_into_gpt
 import torch
 import torch.nn as nn
-from llm.pretraining import calc_loss_loader
 
 from llm.gpt_download import download_and_load_gpt2
 from llm.spam_dataset import train_loader, val_loader
