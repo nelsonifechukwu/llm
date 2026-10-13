@@ -64,7 +64,7 @@ class InstructionDataset(Dataset):
         return len(self.data)
 
 
-def custom_collate_fn(batch, pad_token_id=50256, ignore_index = -100, device="cpu"):
+def custom_collate_fn(batch, pad_token_id=50256, ignore_index = -100, max_length= None,device="cpu"):
     batch_max_length = max(
         len(item) + 1 for item in batch
     )  # +1 to keep the appended last token when shifting the input to make the target
@@ -82,6 +82,10 @@ def custom_collate_fn(batch, pad_token_id=50256, ignore_index = -100, device="cp
         indices = torch.nonzero(mask).squeeze(0)
         if indices.numel() > 1:
             targets[indices[1:]] = ignore_index
+            
+        if max_length is not None:
+            inputs = inputs[:max_length]
+            targets = targets[:max_length]
             
         inputs_lst.append(inputs)
         targets_lst.append(targets)
