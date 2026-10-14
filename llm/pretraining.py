@@ -1,4 +1,3 @@
-# calculate generation loss
 # in model training, the goal is to max the value corresponding to the index of the token in the target vector
 
 import torch
